@@ -62,23 +62,41 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+% Feed Forward - calcula h = a3
+a1 = [ones(m, 1) X];
+z2 = Theta1*a1';
+a2 = [ones(m,1)'; sigmoid(z2)];
+z3 = (Theta2*a2)';
+a3 = sigmoid(z3);
+h = a3;
 
+% Cria vetor Y
+Y = zeros(m,num_labels);
+Y(sub2ind(size(Y), 1:m, y')) = 1;
 
+% Calcula Custo
+J = sum(sum(-Y .* log(h)-(1-Y) .* log(1-h)))/m; %+ lambda/(2*m)*sum(theta(2:end).^2);
 
+% Regularization
+reg = (sum(sum(Theta1(:,2:end).^2)) + sum(sum(Theta2(:,2:end).^2)))*lambda/(2*m);
 
+% Regularized Cost
+J = J + reg;
 
+% Calcula Backpropagation
+d3 = a3 - Y;
+d2 = Theta2' * d3' .* [ones(1,m) ; sigmoidGradient(z2)];
 
+Theta1_grad = (d2(2:end,:) * a1)/m;
+Theta2_grad = (d3' * a2')/m;
 
+% Regularization
+reg1 = [zeros(size(Theta1,1),1) Theta1(:,2:end)*lambda/m];
+reg2 = [zeros(size(Theta2,1),1) Theta2(:,2:end)*lambda/m];
 
-
-
-
-
-
-
-
-
-
+% Regularized Gradient
+Theta1_grad = Theta1_grad + reg1;
+Theta2_grad = Theta2_grad + reg2;
 
 % -------------------------------------------------------------
 
